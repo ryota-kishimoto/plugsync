@@ -20,23 +20,7 @@ plugsync --config ~/my.yaml      # explicit config path
 
 ## Configuration
 
-```yaml
-target: ~/.claude
-
-repos:
-  - url: https://github.com/anthropics/skills
-    skills:
-      - skills/skill-creator
-      - skills/frontend-design
-
-  - url: https://github.com/obra/superpowers
-    skills:
-      - skills/brainstorming
-    agents:
-      - agents/code-reviewer.md
-    commands:
-      - commands/brainstorm.md
-```
+See [examples/plugsync.yaml](examples/plugsync.yaml) for a full example.
 
 After running `plugsync`, files are placed under `target`:
 
@@ -50,4 +34,17 @@ After running `plugsync`, files are placed under `target`:
 │   └── code-reviewer.md
 └── commands/
     └── brainstorm.md
+```
+
+## Claude Code skill
+
+`skills/plugsync/SKILL.md` is a Claude Code skill that lets Claude run `plugsync` for you.
+
+Add it to your `~/.plugsync.yaml`:
+
+```yaml
+repos:
+  - url: https://github.com/ryota-kishimoto/plugsync
+    skills:
+      - skills/plugsync
 ```
