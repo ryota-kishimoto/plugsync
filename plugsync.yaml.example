@@ -1,41 +1,11 @@
-# plugsync.yaml — Claude Code向け設定例
-# cp plugsync.yaml.example ~/.plugsync.yaml して使う
+# plugsync.yaml — example configuration for Claude Code
+# Copy to ~/.plugsync.yaml and run: plugsync
 
 target: ~/.claude
 
 repos:
-  # plugsync 自身のスキル
-  - url: https://github.com/ryota-kishimoto/plugsync
-    skills:
-      - skills/plugsync
-
-  # superpowers — 開発ワークフロー系スキル一式
-  - url: https://github.com/obra/superpowers
-    agents:
-      - agents/code-reviewer.md
-    skills:
-      - skills/brainstorming
-      - skills/dispatching-parallel-agents
-      - skills/executing-plans
-      - skills/finishing-a-development-branch
-      - skills/receiving-code-review
-      - skills/requesting-code-review
-      - skills/subagent-driven-development
-      - skills/systematic-debugging
-      - skills/test-driven-development
-      - skills/using-git-worktrees
-      - skills/using-superpowers
-      - skills/verification-before-completion
-      - skills/writing-plans
-
-  # Anthropic 公式スキル
   - url: https://github.com/anthropics/skills
     skills:
-      - skills/frontend-design
       - skills/skill-creator
+      - skills/frontend-design
       - skills/webapp-testing
-
-  # Vercel Labs スキル
-  - url: https://github.com/vercel-labs/skills
-    skills:
-      - skills/find-skills
