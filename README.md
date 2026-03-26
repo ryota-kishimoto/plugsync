@@ -20,22 +20,6 @@ plugsync --config ~/my.yaml      # explicit config path
 
 ## Configuration
 
-```
-$ plugsync
-Target: ~/.claude
-
-→ Cloning https://github.com/anthropics/skills ...
-  ✓ [skills] skill-creator
-  ✓ [skills] frontend-design
-
-→ Cloning https://github.com/obra/superpowers ...
-  ✓ [skills] brainstorming
-  ✓ [agents] code-reviewer.md
-  ✓ [commands] brainstorm.md
-
-Done.
-```
-
 ```yaml
 target: ~/.claude
 
@@ -56,4 +40,22 @@ repos:
       - commands/brainstorm.md
       - commands/write-plan.md
       - commands/execute-plan.md
+```
+
+After running `plugsync`, files are placed under `target`:
+
+```
+~/.claude/
+├── skills/
+│   ├── skill-creator
+│   ├── frontend-design
+│   ├── brainstorming
+│   ├── systematic-debugging
+│   └── writing-plans
+├── agents/
+│   └── code-reviewer.md
+└── commands/
+    ├── brainstorm.md
+    ├── write-plan.md
+    └── execute-plan.md
 ```
