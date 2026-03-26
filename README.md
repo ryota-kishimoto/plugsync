@@ -23,7 +23,8 @@ plugsync --config ~/my.yaml      # explicit config path
 See [examples/plugsync.yaml](examples/plugsync.yaml).
 
 ```yaml
-target: ~/.claude
+target: ~/.claude  # change to your tool's directory
+                   # e.g. skills → ~/.claude/skills/
 
 repos:
   - url: https://github.com/anthropics/skills
@@ -54,6 +55,8 @@ After running `plugsync`, files are placed under `target`:
     └── brainstorm.md
 ```
 
-## Claude Code skill
+## Skill
+
+A skill that lets your AI agent understand and run plugsync for you.
 
 [skills/plugsync/SKILL.md](skills/plugsync/SKILL.md)
