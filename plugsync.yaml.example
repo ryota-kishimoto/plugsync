@@ -1,0 +1,23 @@
+# plugsync.yaml — configuration example
+#
+# Copy this to ./plugsync.yaml or ~/.plugsync.yaml
+
+# Destination root directory (~ is expanded)
+target: ~/.claude
+
+repos:
+  - url: https://github.com/obra/superpowers
+    skills:
+      - skills/brainstorming
+      - skills/systematic-debugging
+    agents:
+      - agents/code-reviewer.md
+
+  - url: https://github.com/anthropics/skills
+    skills:
+      - skills/frontend-design
+      - skills/skill-creator
+
+  - url: https://github.com/example/repo
+    commands:
+      - commands/my-command.md
