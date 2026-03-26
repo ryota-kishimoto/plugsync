@@ -15,3 +15,8 @@ repos:
       - commands/brainstorm.md
       - commands/write-plan.md
       - commands/execute-plan.md
+
+  - url: https://github.com/anthropics/skills
+    skills:
+      - skills/skill-creator
+      - skills/frontend-design
