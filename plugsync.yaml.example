@@ -12,11 +12,7 @@ repos:
   - url: https://github.com/obra/superpowers
     skills:
       - skills/brainstorming
-      - skills/systematic-debugging
-      - skills/writing-plans
     agents:
       - agents/code-reviewer.md
     commands:
       - commands/brainstorm.md
-      - commands/write-plan.md
-      - commands/execute-plan.md

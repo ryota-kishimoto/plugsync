@@ -32,14 +32,10 @@ repos:
   - url: https://github.com/obra/superpowers
     skills:
       - skills/brainstorming
-      - skills/systematic-debugging
-      - skills/writing-plans
     agents:
       - agents/code-reviewer.md
     commands:
       - commands/brainstorm.md
-      - commands/write-plan.md
-      - commands/execute-plan.md
 ```
 
 After running `plugsync`, files are placed under `target`:
@@ -49,13 +45,9 @@ After running `plugsync`, files are placed under `target`:
 ├── skills/
 │   ├── skill-creator
 │   ├── frontend-design
-│   ├── brainstorming
-│   ├── systematic-debugging
-│   └── writing-plans
+│   └── brainstorming
 ├── agents/
 │   └── code-reviewer.md
 └── commands/
-    ├── brainstorm.md
-    ├── write-plan.md
-    └── execute-plan.md
+    └── brainstorm.md
 ```
