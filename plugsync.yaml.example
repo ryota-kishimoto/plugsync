@@ -4,8 +4,14 @@
 target: ~/.claude
 
 repos:
-  - url: https://github.com/anthropics/skills
+  - url: https://github.com/obra/superpowers
     skills:
-      - skills/skill-creator
-      - skills/frontend-design
-      - skills/webapp-testing
+      - skills/brainstorming
+      - skills/systematic-debugging
+      - skills/writing-plans
+    agents:
+      - agents/code-reviewer.md
+    commands:
+      - commands/brainstorm.md
+      - commands/write-plan.md
+      - commands/execute-plan.md
