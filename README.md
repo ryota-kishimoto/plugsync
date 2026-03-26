@@ -10,10 +10,34 @@ uv tool install git+https://github.com/ryota-kishimoto/plugsync
 
 ## Usage
 
-Create `~/.plugsync.yaml` (see `plugsync.yaml.example`) and run:
+Create `~/.plugsync.yaml` and run:
 
 ```bash
-plugsync
+plugsync                         # run with ~/.plugsync.yaml or ./plugsync.yaml
+plugsync --dry-run               # preview without copying
+plugsync --config ~/my.yaml      # explicit config path
 ```
 
-Add `--dry-run` to preview without copying.
+## Configuration
+
+```yaml
+target: ~/.claude
+
+repos:
+  - url: https://github.com/anthropics/skills
+    skills:
+      - skills/skill-creator
+      - skills/frontend-design
+
+  - url: https://github.com/obra/superpowers
+    skills:
+      - skills/brainstorming
+      - skills/systematic-debugging
+      - skills/writing-plans
+    agents:
+      - agents/code-reviewer.md
+    commands:
+      - commands/brainstorm.md
+      - commands/write-plan.md
+      - commands/execute-plan.md
+```
