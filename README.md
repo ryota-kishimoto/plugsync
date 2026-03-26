@@ -20,6 +20,22 @@ plugsync --config ~/my.yaml      # explicit config path
 
 ## Configuration
 
+```
+$ plugsync
+Target: ~/.claude
+
+→ Cloning https://github.com/anthropics/skills ...
+  ✓ [skills] skill-creator
+  ✓ [skills] frontend-design
+
+→ Cloning https://github.com/obra/superpowers ...
+  ✓ [skills] brainstorming
+  ✓ [agents] code-reviewer.md
+  ✓ [commands] brainstorm.md
+
+Done.
+```
+
 ```yaml
 target: ~/.claude
 
