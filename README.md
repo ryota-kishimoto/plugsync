@@ -5,7 +5,11 @@ Sync skills, agents, and commands from GitHub repositories to a local directory.
 ## Install
 
 ```bash
+# uv (recommended)
 uv tool install git+https://github.com/ryota-kishimoto/plugsync
+
+# pipx
+pipx install git+https://github.com/ryota-kishimoto/plugsync
 ```
 
 ## Usage
