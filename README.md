@@ -59,6 +59,27 @@ After running `plugsync`, files are placed under `target`:
     └── brainstorm.md
 ```
 
+### Custom paths
+
+Use `paths:` to place files anywhere under `target`:
+
+```yaml
+target: ~
+
+repos:
+  - url: https://github.com/mathiasbynens/dotfiles
+    paths:
+      - path: .
+        src:
+          - .editorconfig
+
+  - url: https://github.com/stevemao/github-issue-templates
+    paths:
+      - path: .github
+        src:
+          - PULL_REQUEST_TEMPLATE.md
+```
+
 ## Skill
 
 A skill that lets your AI agent understand and run plugsync for you.
