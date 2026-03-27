@@ -32,8 +32,22 @@ def load_config(path: Path) -> dict:
         return yaml.safe_load(f)
 
 
-def sync(config: dict, dry_run: bool = False) -> None:
-    target = Path(os.path.expanduser(config["target"]))
+def resolve_target(raw: str, root: Path | None) -> Path:
+    if root is not None:
+        if raw.startswith("~/"):
+            rel = raw[2:]
+        elif raw == "~":
+            rel = ""
+        elif raw.startswith("/"):
+            rel = raw.lstrip("/")
+        else:
+            rel = raw
+        return root / rel if rel else root
+    return Path(os.path.expanduser(raw))
+
+
+def sync(config: dict, dry_run: bool = False, root: Path | None = None) -> None:
+    target = resolve_target(config["target"], root)
     print(f"Target: {target}")
     print()
 
@@ -133,22 +147,28 @@ def main() -> None:
     parser.add_argument(
         "--config", "-c",
         type=Path,
-        help="Path to config file (default: ./plugsync.yaml or ~/.plugsync.yaml)",
+        help="Path to config file (default: .plugsync.yaml or ~/.plugsync.yaml)",
     )
     parser.add_argument(
         "--dry-run", "-n",
         action="store_true",
         help="Show what would be copied without actually copying",
     )
+    parser.add_argument(
+        "--root",
+        type=Path,
+        metavar="DIR",
+        help="Root directory to prepend to the target path (overrides the home-directory part of target)",
+    )
     args = parser.parse_args()
 
     config_path = args.config or find_config()
     if config_path is None:
         print(
-            "Error: no config found. Create ./plugsync.yaml or ~/.plugsync.yaml",
+            "Error: no config found. Create .plugsync.yaml or ~/.plugsync.yaml",
             file=sys.stderr,
         )
         sys.exit(1)
 
     config = load_config(config_path)
-    sync(config, dry_run=args.dry_run)
+    sync(config, dry_run=args.dry_run, root=args.root)
