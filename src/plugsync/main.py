@@ -42,10 +42,15 @@ def sync(config: dict, dry_run: bool = False) -> None:
             name = os.path.basename(url).removesuffix(".git")
             clone_dir = Path(tmpdir) / org / name
 
-            print(f"→ Cloning {url} ...")
-            result = subprocess.run(
-                ["git", "clone", "--depth=1", "--quiet", url, str(clone_dir)],
-            )
+            ref = repo.get("ref")
+            clone_cmd = ["git", "clone", "--depth=1", "--quiet"]
+            if ref:
+                clone_cmd += ["--branch", ref]
+            clone_cmd += [url, str(clone_dir)]
+
+            ref_label = f" (ref: {ref})" if ref else ""
+            print(f"→ Cloning {url}{ref_label} ...")
+            result = subprocess.run(clone_cmd)
             if result.returncode != 0:
                 print(f"  ⚠ Failed to clone {url}, skipping.\n")
                 continue

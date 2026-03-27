@@ -37,6 +37,7 @@ repos:
       - skills/frontend-design
 
   - url: https://github.com/obra/superpowers
+    ref: main  # optional: pin to a specific branch or tag
     skills:
       - skills/brainstorming
     agents:
