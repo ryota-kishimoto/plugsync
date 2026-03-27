@@ -17,7 +17,7 @@ pipx install git+https://github.com/ryota-kishimoto/plugsync
 Create `~/.plugsync.yaml` and run:
 
 ```bash
-plugsync                         # run with ~/.plugsync.yaml or ./plugsync.yaml
+plugsync                         # run with ./.plugsync.yaml, ./plugsync.yaml, or ~/.plugsync.yaml
 plugsync --dry-run               # preview without copying
 plugsync --config ~/my.yaml      # explicit config path
 ```
