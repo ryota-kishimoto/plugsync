@@ -35,6 +35,10 @@ def sync(config: dict, dry_run: bool = False) -> None:
     print(f"Target: {target}")
     print()
 
+    total_repos = 0
+    synced_files = 0
+    warnings = 0
+
     with tempfile.TemporaryDirectory() as tmpdir:
         for repo in config.get("repos", []):
             url = repo["url"]
@@ -53,7 +57,10 @@ def sync(config: dict, dry_run: bool = False) -> None:
             result = subprocess.run(clone_cmd)
             if result.returncode != 0:
                 print(f"  ⚠ Failed to clone {url}, skipping.\n")
+                warnings += 1
                 continue
+
+            total_repos += 1
 
             for kind in ("skills", "agents", "commands"):
                 paths = repo.get(kind, [])
@@ -70,6 +77,7 @@ def sync(config: dict, dry_run: bool = False) -> None:
 
                     if not src.exists():
                         print(f"  ⚠ Not found: {src_path}")
+                        warnings += 1
                         continue
 
                     if dry_run:
@@ -82,6 +90,7 @@ def sync(config: dict, dry_run: bool = False) -> None:
                         else:
                             shutil.copy2(src, dest)
                         print(f"  ✓ [{kind}] {src.name}")
+                        synced_files += 1
 
             for entry in repo.get("paths", []):
                 dest_base = target / entry["path"]
@@ -94,6 +103,7 @@ def sync(config: dict, dry_run: bool = False) -> None:
 
                     if not src.exists():
                         print(f"  ⚠ Not found: {src_path}")
+                        warnings += 1
                         continue
 
                     if dry_run:
@@ -106,10 +116,12 @@ def sync(config: dict, dry_run: bool = False) -> None:
                         else:
                             shutil.copy2(src, dest)
                         print(f"  ✓ [paths] {src.name} → {dest_base}")
+                        synced_files += 1
 
             print()
 
-    print("Done.")
+    warn_label = f", {warnings} warning{'s' if warnings != 1 else ''}" if warnings else ""
+    print(f"{total_repos} repo{'s' if total_repos != 1 else ''}, {synced_files} file{'s' if synced_files != 1 else ''} synced{warn_label}")
 
 
 def main() -> None:
