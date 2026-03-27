@@ -61,7 +61,9 @@ After running `plugsync`, files are placed under `target`:
 
 ### Custom paths
 
-Use `paths:` to place files anywhere under `target`:
+Use `paths:` to place files anywhere under `target`.
+
+See [examples/dotfiles/plugsync.yaml](examples/dotfiles/plugsync.yaml).
 
 ```yaml
 target: ~

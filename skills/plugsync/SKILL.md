@@ -27,3 +27,21 @@ repos:
 ```
 
 新しいスキルを追加するときは `~/.plugsync.yaml` に追記して `plugsync` を実行する。
+
+## paths: で任意パスに配置
+
+`skills:` などの予約語以外に、`paths:` で任意のパスに配置できる。
+
+```yaml
+target: ~
+
+repos:
+  - url: https://github.com/someone/dotfiles
+    paths:
+      - path: .editorconfig
+        src:
+          - .editorconfig
+      - path: .github
+        src:
+          - PULL_REQUEST_TEMPLATE.md
+```
