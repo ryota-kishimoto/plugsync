@@ -18,3 +18,5 @@ repos:
       - path: .github
         src:
           - PULL_REQUEST_TEMPLATE.md
+          - src: PULL_REQUEST_TEMPLATE.md  # optional: rename (subdirs allowed)
+            name: pull_request_template/feature.md

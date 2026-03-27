@@ -77,25 +77,32 @@ def sync(config: dict, config_path: Path, dry_run: bool = False) -> None:
                 if not dry_run:
                     dest_base.mkdir(parents=True, exist_ok=True)
 
-                for src_path in paths:
+                for item in paths:
+                    if isinstance(item, dict):
+                        src_path, dest_name = item["src"], item.get("name")
+                    else:
+                        src_path, dest_name = item, None
+
                     src = clone_dir / src_path
-                    dest = dest_base / src.name
+                    dest = dest_base / (dest_name or src.name)
 
                     if not src.exists():
                         print(f"  ⚠ Not found: {src_path}")
                         warnings += 1
                         continue
 
+                    label = f"{src.name} → {dest_name}" if dest_name else src.name
                     if dry_run:
-                        print(f"  (dry) [{kind}] {src.name} → {dest}")
+                        print(f"  (dry) [{kind}] {label}")
                     else:
                         if dest.exists():
                             shutil.rmtree(dest) if dest.is_dir() else dest.unlink()
+                        dest.parent.mkdir(parents=True, exist_ok=True)
                         if src.is_dir():
                             shutil.copytree(src, dest)
                         else:
                             shutil.copy2(src, dest)
-                        print(f"  ✓ [{kind}] {src.name}")
+                        print(f"  ✓ [{kind}] {label}")
                         synced_files += 1
 
             for entry in repo.get("paths", []):
@@ -103,25 +110,32 @@ def sync(config: dict, config_path: Path, dry_run: bool = False) -> None:
                 if not dry_run:
                     dest_base.mkdir(parents=True, exist_ok=True)
 
-                for src_path in entry.get("src", []):
+                for item in entry.get("src", []):
+                    if isinstance(item, dict):
+                        src_path, dest_name = item["src"], item.get("name")
+                    else:
+                        src_path, dest_name = item, None
+
                     src = clone_dir / src_path
-                    dest = dest_base / src.name
+                    dest = dest_base / (dest_name or src.name)
 
                     if not src.exists():
                         print(f"  ⚠ Not found: {src_path}")
                         warnings += 1
                         continue
 
+                    label = f"{src.name} → {dest_name}" if dest_name else src.name
                     if dry_run:
-                        print(f"  (dry) [paths] {src.name} → {dest}")
+                        print(f"  (dry) [paths] {label} → {dest_base}")
                     else:
                         if dest.exists():
                             shutil.rmtree(dest) if dest.is_dir() else dest.unlink()
+                        dest.parent.mkdir(parents=True, exist_ok=True)
                         if src.is_dir():
                             shutil.copytree(src, dest)
                         else:
                             shutil.copy2(src, dest)
-                        print(f"  ✓ [paths] {src.name} → {dest_base}")
+                        print(f"  ✓ [paths] {label} → {dest_base}")
                         synced_files += 1
 
             print()

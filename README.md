@@ -39,6 +39,8 @@ repos:
     ref: main  # optional: pin to a specific branch or tag
     skills:
       - skills/brainstorming
+      - src: skills/using-superpowers  # optional: rename with "name"
+        name: superpowers
     agents:
       - agents/code-reviewer.md
     commands:
@@ -81,6 +83,8 @@ repos:
       - path: .github
         src:
           - PULL_REQUEST_TEMPLATE.md
+          - src: PULL_REQUEST_TEMPLATE.md  # optional: rename (subdirs allowed)
+            name: pull_request_template/feature.md
 ```
 
 ## Skill
