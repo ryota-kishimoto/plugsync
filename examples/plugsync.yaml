@@ -1,5 +1,5 @@
-# plugsync.yaml — example configuration for Claude Code
-# Copy to ~/.plugsync.yaml and run: plugsync
+# .plugsync.yaml — example configuration for Claude Code
+# Place as .plugsync.yaml in any directory and run: plugsync
 
 target: ~/.claude
 

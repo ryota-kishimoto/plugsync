@@ -14,12 +14,12 @@ pipx install git+https://github.com/ryota-kishimoto/plugsync
 
 ## Usage
 
-Create `.plugsync.yaml` in your project directory and run:
+Create `.plugsync.yaml` in any directory and run:
 
 ```bash
-plugsync                         # run with .plugsync.yaml or .plugsync.yml in current directory
+plugsync                         # auto-discovers .plugsync.yaml or .plugsync.yml
 plugsync --dry-run               # preview without copying
-plugsync --config ~/my.yaml      # explicit config path (e.g. a global config)
+plugsync --config /path/to/file  # explicit config path
 ```
 
 ## Configuration
@@ -27,8 +27,7 @@ plugsync --config ~/my.yaml      # explicit config path (e.g. a global config)
 See [examples/plugsync.yaml](examples/plugsync.yaml).
 
 ```yaml
-target: ~/.claude  # change to your tool's directory
-                   # e.g. skills → ~/.claude/skills/
+target: ~/.claude  # ~ paths are expanded; other paths are relative to this file
 
 repos:
   - url: https://github.com/anthropics/skills
@@ -67,7 +66,8 @@ Use `paths:` to place files anywhere under `target`.
 See [examples/dotfiles/plugsync.yaml](examples/dotfiles/plugsync.yaml).
 
 ```yaml
-target: ~
+# target: "." means the same directory as this config file
+target: .
 
 repos:
   - url: https://github.com/mathiasbynens/dotfiles
