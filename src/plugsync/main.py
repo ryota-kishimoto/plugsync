@@ -15,8 +15,6 @@ import yaml
 CONFIG_SEARCH_PATHS = [
     Path("./.plugsync.yaml"),
     Path("./.plugsync.yml"),
-    Path("~/.plugsync.yaml").expanduser(),
-    Path("~/.plugsync.yml").expanduser(),
 ]
 
 
@@ -165,7 +163,7 @@ def main() -> None:
     config_path = args.config or find_config()
     if config_path is None:
         print(
-            "Error: no config found. Create .plugsync.yaml or ~/.plugsync.yaml",
+            "Error: no config found. Create .plugsync.yaml, or use --config to specify a path.",
             file=sys.stderr,
         )
         sys.exit(1)
