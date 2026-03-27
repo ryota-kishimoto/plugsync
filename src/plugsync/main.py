@@ -14,8 +14,9 @@ import yaml
 
 CONFIG_SEARCH_PATHS = [
     Path("./.plugsync.yaml"),
-    Path("./plugsync.yaml"),
+    Path("./.plugsync.yml"),
     Path("~/.plugsync.yaml").expanduser(),
+    Path("~/.plugsync.yml").expanduser(),
 ]
 
 
