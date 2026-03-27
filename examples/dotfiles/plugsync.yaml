@@ -1,7 +1,10 @@
-# plugsync.yaml — example configuration for dotfiles
-# Copy to ~/.plugsync.yaml and run: plugsync
+# .plugsync.yaml — example configuration for dotfiles
+# Place as .plugsync.yaml in your dotfiles directory and run: plugsync
+#
+# target is relative to this config file's location.
+# "." means the same directory as this file.
 
-target: ~
+target: .
 
 repos:
   - url: https://github.com/mathiasbynens/dotfiles

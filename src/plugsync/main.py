@@ -13,8 +13,8 @@ import yaml
 
 
 CONFIG_SEARCH_PATHS = [
-    Path("./plugsync.yaml"),
-    Path("~/.plugsync.yaml").expanduser(),
+    Path("./.plugsync.yaml"),
+    Path("./.plugsync.yml"),
 ]
 
 
@@ -30,8 +30,14 @@ def load_config(path: Path) -> dict:
         return yaml.safe_load(f)
 
 
-def sync(config: dict, dry_run: bool = False) -> None:
-    target = Path(os.path.expanduser(config["target"]))
+def resolve_target(raw: str, config_path: Path) -> Path:
+    if raw.startswith("~"):
+        return Path(os.path.expanduser(raw))
+    return (config_path.absolute().parent / raw).absolute()
+
+
+def sync(config: dict, config_path: Path, dry_run: bool = False) -> None:
+    target = resolve_target(config["target"], config_path)
     print(f"Target: {target}")
     print()
 
@@ -131,7 +137,7 @@ def main() -> None:
     parser.add_argument(
         "--config", "-c",
         type=Path,
-        help="Path to config file (default: ./plugsync.yaml or ~/.plugsync.yaml)",
+        help="Path to config file (default: .plugsync.yaml or .plugsync.yml in current directory)",
     )
     parser.add_argument(
         "--dry-run", "-n",
@@ -143,10 +149,10 @@ def main() -> None:
     config_path = args.config or find_config()
     if config_path is None:
         print(
-            "Error: no config found. Create ./plugsync.yaml or ~/.plugsync.yaml",
+            "Error: no config found. Create .plugsync.yaml, or use --config to specify a path.",
             file=sys.stderr,
         )
         sys.exit(1)
 
     config = load_config(config_path)
-    sync(config, dry_run=args.dry_run)
+    sync(config, config_path=config_path, dry_run=args.dry_run)
