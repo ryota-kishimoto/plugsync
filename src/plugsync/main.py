@@ -30,22 +30,8 @@ def load_config(path: Path) -> dict:
         return yaml.safe_load(f)
 
 
-def resolve_target(raw: str, root: Path | None) -> Path:
-    if root is not None:
-        if raw.startswith("~/"):
-            rel = raw[2:]
-        elif raw == "~":
-            rel = ""
-        elif raw.startswith("/"):
-            rel = raw.lstrip("/")
-        else:
-            rel = raw
-        return root / rel if rel else root
-    return Path(os.path.expanduser(raw))
-
-
-def sync(config: dict, dry_run: bool = False, root: Path | None = None) -> None:
-    target = resolve_target(config["target"], root)
+def sync(config: dict, dry_run: bool = False) -> None:
+    target = Path(os.path.expanduser(config["target"]))
     print(f"Target: {target}")
     print()
 
@@ -152,12 +138,6 @@ def main() -> None:
         action="store_true",
         help="Show what would be copied without actually copying",
     )
-    parser.add_argument(
-        "--root",
-        type=Path,
-        metavar="DIR",
-        help="Root directory to prepend to the target path (overrides the home-directory part of target)",
-    )
     args = parser.parse_args()
 
     config_path = args.config or find_config()
@@ -169,4 +149,4 @@ def main() -> None:
         sys.exit(1)
 
     config = load_config(config_path)
-    sync(config, dry_run=args.dry_run, root=args.root)
+    sync(config, dry_run=args.dry_run)
