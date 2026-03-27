@@ -30,8 +30,15 @@ def load_config(path: Path) -> dict:
         return yaml.safe_load(f)
 
 
-def sync(config: dict, dry_run: bool = False) -> None:
-    target = Path(os.path.expanduser(config["target"]))
+def resolve_target(raw: str, config_path: Path) -> Path:
+    expanded = Path(os.path.expanduser(raw))
+    if expanded.is_absolute():
+        return expanded
+    return (config_path.parent / expanded).resolve()
+
+
+def sync(config: dict, config_path: Path, dry_run: bool = False) -> None:
+    target = resolve_target(config["target"], config_path)
     print(f"Target: {target}")
     print()
 
@@ -149,4 +156,4 @@ def main() -> None:
         sys.exit(1)
 
     config = load_config(config_path)
-    sync(config, dry_run=args.dry_run)
+    sync(config, config_path=config_path, dry_run=args.dry_run)
