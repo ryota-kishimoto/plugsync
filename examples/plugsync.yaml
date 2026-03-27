@@ -13,6 +13,8 @@ repos:
     ref: main  # optional: pin to a specific branch or tag
     skills:
       - skills/brainstorming
+      - src: skills/using-superpowers  # optional: rename with "name"
+        name: superpowers
     agents:
       - agents/code-reviewer.md
     commands:
