@@ -131,7 +131,7 @@ def main() -> None:
     parser.add_argument(
         "--config", "-c",
         type=Path,
-        help="Path to config file (default: .plugsync.yaml or ~/.plugsync.yaml)",
+        help="Path to config file (default: .plugsync.yaml or .plugsync.yml in current directory)",
     )
     parser.add_argument(
         "--dry-run", "-n",
