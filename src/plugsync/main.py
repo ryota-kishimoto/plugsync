@@ -33,7 +33,7 @@ def load_config(path: Path) -> dict:
 def resolve_target(raw: str, config_path: Path) -> Path:
     if raw.startswith("~"):
         return Path(os.path.expanduser(raw))
-    return (config_path.parent / raw).resolve()
+    return (config_path.absolute().parent / raw).absolute()
 
 
 def sync(config: dict, config_path: Path, dry_run: bool = False) -> None:
