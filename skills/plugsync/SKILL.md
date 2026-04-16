@@ -6,7 +6,10 @@ description: ~/.plugsync.yaml に定義されたGitHubリポジトリからskill
 ## 実行方法
 
 ```bash
-plugsync
+plugsync                # lock があれば固定SHAで同期、なければ最新取得して lock 生成
+plugsync --update       # lock を無視して最新取得、lock 再生成
+plugsync --frozen       # lock 必須、なければエラー
+plugsync --dry-run      # プレビューのみ（lock 書き出しなし）
 ```
 
 ## ~/.plugsync.yaml の管理
@@ -27,6 +30,10 @@ repos:
 ```
 
 新しいスキルを追加するときは `~/.plugsync.yaml` に追記して `plugsync` を実行する。
+
+## plugsync.lock
+
+`plugsync` を実行すると、config と同じディレクトリに `plugsync.lock` が生成される。各リポジトリのコミットSHAを記録し、次回以降は同じバージョンで同期する。最新に更新したいときは `plugsync --update` を使う。
 
 ## paths: で任意パスに配置
 
