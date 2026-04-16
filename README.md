@@ -20,6 +20,8 @@ Create `.plugsync.yaml` in any directory and run:
 plugsync                         # auto-discovers .plugsync.yaml or .plugsync.yml
 plugsync --dry-run               # preview without copying
 plugsync --config /path/to/file  # explicit config path
+plugsync --update                # ignore lock file and fetch latest
+plugsync --frozen                # use locked SHAs only; fail if no lock file
 ```
 
 ## Configuration
@@ -60,6 +62,18 @@ After running `plugsync`, files are placed under `target`:
 └── commands/
     └── brainstorm.md
 ```
+
+### Lock file
+
+plugsync generates a `plugsync.lock` file next to your config to pin exact commit SHAs for reproducible syncs.
+
+| Command | Lock exists | Lock absent |
+|---------|------------|-------------|
+| `plugsync` | Sync at locked SHAs | Fetch latest, generate lock |
+| `plugsync --update` (`-u`) | Fetch latest, regenerate lock | Same |
+| `plugsync --frozen` | Sync at locked SHAs | Error |
+
+When a lock file is present, repos whose cached SHA already matches the lock are not fetched at all, making warm runs faster.
 
 ### Custom paths
 
