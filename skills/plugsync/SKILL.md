@@ -6,10 +6,11 @@ description: ~/.plugsync.yaml に定義されたGitHubリポジトリからskill
 ## 実行方法
 
 ```bash
-plugsync                # lock があれば固定SHAで同期、なければ最新取得して lock 生成
-plugsync --update       # lock を無視して最新取得、lock 再生成
-plugsync --frozen       # lock 必須、なければエラー
-plugsync --dry-run      # プレビューのみ（lock 書き出しなし）
+plugsync                   # lock があれば固定SHAで同期、なければ最新取得して lock 生成
+plugsync --update          # 全repoを最新取得、lock 再生成
+plugsync --update foo/bar  # 指定repoだけ最新取得（url または org/name）
+plugsync --frozen          # lock 必須、なければエラー
+plugsync --dry-run         # プレビューのみ（lock 書き出しなし）
 ```
 
 ## ~/.plugsync.yaml の管理
@@ -33,7 +34,7 @@ repos:
 
 ## plugsync.lock
 
-`plugsync` を実行すると、config と同じディレクトリに `plugsync.lock` が生成される。各リポジトリのコミットSHAを記録し、次回以降は同じバージョンで同期する。最新に更新したいときは `plugsync --update` を使う。
+`plugsync` を実行すると、config と同じディレクトリに `plugsync.lock` が生成される。各リポジトリのコミットSHAを記録し、次回以降は同じバージョンで同期する。最新に更新したいときは `plugsync --update` を使う。特定のrepoだけ更新したいときは `plugsync --update foo/bar` のように url か `org/name` を渡す。
 
 ## paths: で任意パスに配置
 
