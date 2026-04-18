@@ -77,6 +77,15 @@ def get_locked_sha(lock_data: dict | None, url: str) -> str | None:
     return None
 
 
+def repo_matches(url: str, target: str) -> bool:
+    """Match a repo url against a user-supplied target (full url or org/name)."""
+    if url == target:
+        return True
+    name = url.removesuffix(".git")
+    org_name = "/".join(name.rsplit("/", 2)[-2:])
+    return org_name == target.removesuffix(".git")
+
+
 CACHE_DIR = Path(os.environ.get("PLUGSYNC_CACHE", "~/.cache/plugsync")).expanduser()
 
 
@@ -118,8 +127,8 @@ def fetch_repo(
 
 
 def sync(
-    config: dict, config_path: Path, *, dry_run: bool = False, update: bool = False,
-    frozen: bool = False,
+    config: dict, config_path: Path, *, dry_run: bool = False,
+    update: bool | str = False, frozen: bool = False,
 ) -> None:
     target = resolve_target(config["target"], config_path)
     lock_file = lock_path_for(config_path)
@@ -129,10 +138,32 @@ def sync(
         print("Error: --frozen requires a lock file, but plugsync.lock was not found.", file=sys.stderr)
         sys.exit(1)
 
-    use_lock = lock_data is not None and not update
+    repos = config.get("repos", [])
+
+    if isinstance(update, str):
+        matched = [r for r in repos if repo_matches(r["url"], update)]
+        if not matched:
+            print(f"Error: no repo matches '{update}'.", file=sys.stderr)
+            sys.exit(1)
+        if len(matched) > 1:
+            urls = ", ".join(r["url"] for r in matched)
+            print(f"Error: '{update}' matches multiple repos: {urls}", file=sys.stderr)
+            sys.exit(1)
+        update_targets = {matched[0]["url"]}
+    else:
+        update_targets = None
+
+    def locked_sha_for(url: str) -> str | None:
+        if lock_data is None:
+            return None
+        if update is True:
+            return None
+        if update_targets is not None and url in update_targets:
+            return None
+        return get_locked_sha(lock_data, url)
 
     print(f"Target: {target}")
-    if use_lock:
+    if lock_data is not None and update is not True:
         print(f"Lock:   {lock_file}")
     print()
 
@@ -140,12 +171,11 @@ def sync(
     synced_files = 0
     warnings = 0
 
-    repos = config.get("repos", [])
     with concurrent.futures.ThreadPoolExecutor() as pool:
         futures = {
             pool.submit(
                 fetch_repo, repo["url"], repo.get("ref"),
-                get_locked_sha(lock_data, repo["url"]) if use_lock else None,
+                locked_sha_for(repo["url"]),
             ): repo
             for repo in repos
         }
@@ -263,8 +293,11 @@ def main() -> None:
     )
     parser.add_argument(
         "--update", "-u",
-        action="store_true",
-        help="Ignore lock file and fetch latest, then regenerate the lock",
+        nargs="?",
+        const=True,
+        default=False,
+        metavar="URL|NAME",
+        help="Update lock. Without arg: all repos. With arg (full url or org/name): that repo only.",
     )
     parser.add_argument(
         "--frozen",
