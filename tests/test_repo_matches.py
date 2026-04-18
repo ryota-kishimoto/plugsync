@@ -12,6 +12,12 @@ def test_matches_org_name():
 def test_matches_strips_dot_git():
     assert repo_matches("https://github.com/foo/bar.git", "foo/bar")
     assert repo_matches("https://github.com/foo/bar", "foo/bar.git")
+    assert repo_matches(
+        "https://github.com/foo/bar.git", "https://github.com/foo/bar"
+    )
+    assert repo_matches(
+        "https://github.com/foo/bar", "https://github.com/foo/bar.git"
+    )
 
 
 def test_no_match():

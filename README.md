@@ -72,7 +72,7 @@ plugsync generates a `plugsync.lock` file next to your config to pin exact commi
 |---------|------------|-------------|
 | `plugsync` | Sync at locked SHAs | Fetch latest, generate lock |
 | `plugsync --update` (`-u`) | Fetch latest for all, regenerate lock | Same |
-| `plugsync --update foo/bar` | Fetch latest for `foo/bar` only, others stay locked | Same (others unlocked) |
+| `plugsync --update foo/bar` | Fetch latest for `foo/bar` only, others stay locked | Error (requires lock) |
 | `plugsync --frozen` | Sync at locked SHAs | Error |
 
 When a lock file is present, repos whose cached SHA already matches the lock are not fetched at all, making warm runs faster.

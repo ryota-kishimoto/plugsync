@@ -79,11 +79,12 @@ def get_locked_sha(lock_data: dict | None, url: str) -> str | None:
 
 def repo_matches(url: str, target: str) -> bool:
     """Match a repo url against a user-supplied target (full url or org/name)."""
-    if url == target:
+    url_norm = url.removesuffix(".git")
+    target_norm = target.removesuffix(".git")
+    if url_norm == target_norm:
         return True
-    name = url.removesuffix(".git")
-    org_name = "/".join(name.rsplit("/", 2)[-2:])
-    return org_name == target.removesuffix(".git")
+    org_name = "/".join(url_norm.rsplit("/", 2)[-2:])
+    return org_name == target_norm
 
 
 CACHE_DIR = Path(os.environ.get("PLUGSYNC_CACHE", "~/.cache/plugsync")).expanduser()
@@ -140,30 +141,41 @@ def sync(
 
     repos = config.get("repos", [])
 
-    if isinstance(update, str):
-        matched = [r for r in repos if repo_matches(r["url"], update)]
+    update_all = update is True
+    update_target: str | None = update if isinstance(update, str) else None
+
+    if update_target is not None:
+        if lock_data is None:
+            print(
+                f"Error: --update {update_target} requires an existing lock file. "
+                "Run `plugsync` first to generate one.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        matched = [r for r in repos if repo_matches(r["url"], update_target)]
         if not matched:
-            print(f"Error: no repo matches '{update}'.", file=sys.stderr)
+            print(f"Error: no repo matches '{update_target}'.", file=sys.stderr)
             sys.exit(1)
         if len(matched) > 1:
             urls = ", ".join(r["url"] for r in matched)
-            print(f"Error: '{update}' matches multiple repos: {urls}", file=sys.stderr)
+            print(
+                f"Error: '{update_target}' matches multiple repos: {urls}",
+                file=sys.stderr,
+            )
             sys.exit(1)
-        update_targets = {matched[0]["url"]}
+        update_urls = {matched[0]["url"]}
     else:
-        update_targets = None
+        update_urls = set()
 
     def locked_sha_for(url: str) -> str | None:
-        if lock_data is None:
+        if lock_data is None or update_all:
             return None
-        if update is True:
-            return None
-        if update_targets is not None and url in update_targets:
+        if url in update_urls:
             return None
         return get_locked_sha(lock_data, url)
 
     print(f"Target: {target}")
-    if lock_data is not None and update is not True:
+    if lock_data is not None and not update_all:
         print(f"Lock:   {lock_file}")
     print()
 
