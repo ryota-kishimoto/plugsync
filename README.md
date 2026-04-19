@@ -66,7 +66,7 @@ After running `plugsync`, files are placed under `target`:
 
 ### Lock file
 
-plugsync generates a `plugsync.lock` file next to your config to pin exact commit SHAs for reproducible syncs.
+plugsync generates a `.plugsync.lock` file next to your config to pin exact commit SHAs for reproducible syncs.
 
 | Command | Lock exists | Lock absent |
 |---------|------------|-------------|
