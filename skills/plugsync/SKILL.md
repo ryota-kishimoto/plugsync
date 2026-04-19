@@ -32,9 +32,9 @@ repos:
 
 新しいスキルを追加するときは `~/.plugsync.yaml` に追記して `plugsync` を実行する。
 
-## plugsync.lock
+## .plugsync.lock
 
-`plugsync` を実行すると、config と同じディレクトリに `plugsync.lock` が生成される。各リポジトリのコミットSHAを記録し、次回以降は同じバージョンで同期する。最新に更新したいときは `plugsync --update` を使う。特定のrepoだけ更新したいときは `plugsync --update foo/bar` のように url か `org/name` を渡す。
+`plugsync` を実行すると、config と同じディレクトリに `.plugsync.lock` が生成される。各リポジトリのコミットSHAを記録し、次回以降は同じバージョンで同期する。最新に更新したいときは `plugsync --update` を使う。特定のrepoだけ更新したいときは `plugsync --update foo/bar` のように url か `org/name` を渡す。
 
 ## paths: で任意パスに配置
 

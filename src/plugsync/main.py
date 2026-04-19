@@ -18,7 +18,7 @@ CONFIG_SEARCH_PATHS = [
     Path("./.plugsync.yml"),
 ]
 
-LOCK_FILENAME = "plugsync.lock"
+LOCK_FILENAME = ".plugsync.lock"
 
 
 def find_config() -> Path | None:
@@ -136,7 +136,7 @@ def sync(
     lock_data = load_lock(lock_file)
 
     if frozen and lock_data is None:
-        print("Error: --frozen requires a lock file, but plugsync.lock was not found.", file=sys.stderr)
+        print("Error: --frozen requires a lock file, but .plugsync.lock was not found.", file=sys.stderr)
         sys.exit(1)
 
     repos = config.get("repos", [])
