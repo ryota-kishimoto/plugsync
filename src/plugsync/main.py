@@ -213,6 +213,11 @@ def sync(
         print(message)
         if clone_dir is None:
             warnings += 1
+            # 取得できなかった repo は設定には残っているので、既存の記録を引き継ぐ。
+            # 落とすと一時的なネットワーク断でピン留めが消え、lock が再現性を失う。
+            previous_sha = get_locked_sha(lock_data, url)
+            if previous_sha:
+                lock_entries.append({"url": url, "commit": previous_sha})
             continue
 
         total_repos += 1
