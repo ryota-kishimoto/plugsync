@@ -51,9 +51,18 @@ def load_lock(path: Path) -> dict | None:
 
 
 def save_lock(path: Path, repos: list[dict]) -> None:
+    # locked_at は repos が変わったときだけ進める。毎回現在時刻を書くと、同じ commit を
+    # 指したままファイルだけ変わり、lock を git 管理しているリポジトリで sync のたびに
+    # 中身のない差分が出る。「いつ同期したか」ではなく「いつ内容が変わったか」を持たせる。
+    previous = load_lock(path)
+    if previous is not None and previous.get("repos") == repos:
+        locked_at = previous.get("locked_at")
+    else:
+        locked_at = None
+
     data = {
         "version": 1,
-        "locked_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "locked_at": locked_at or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "repos": repos,
     }
     with open(path, "w") as f:
@@ -204,6 +213,11 @@ def sync(
         print(message)
         if clone_dir is None:
             warnings += 1
+            # 取得できなかった repo は設定には残っているので、既存の記録を引き継ぐ。
+            # 落とすと一時的なネットワーク断でピン留めが消え、lock が再現性を失う。
+            previous_sha = get_locked_sha(lock_data, url)
+            if previous_sha:
+                lock_entries.append({"url": url, "commit": previous_sha})
             continue
 
         total_repos += 1
