@@ -3,10 +3,12 @@
 
 import argparse
 import concurrent.futures
+import fcntl
 import os
 import shutil
 import subprocess
 import sys
+from contextlib import ExitStack, contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -99,6 +101,37 @@ def repo_matches(url: str, target: str) -> bool:
 CACHE_DIR = Path(os.environ.get("PLUGSYNC_CACHE", "~/.cache/plugsync")).expanduser()
 
 
+def cache_dir_for(url: str, ref: str | None) -> Path:
+    org = os.path.basename(os.path.dirname(url))
+    name = os.path.basename(url).removesuffix(".git")
+    return CACHE_DIR / org / name / (ref or "_default")
+
+
+@contextmanager
+def cache_lock(clone_dir: Path):
+    """Hold an exclusive lock on a cache dir so concurrent plugsync runs don't share it."""
+    lock_path = clone_dir.with_name(clone_dir.name + ".lock")
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(lock_path, "w") as f:
+        try:
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            print(f"Waiting for another plugsync using {clone_dir} ...")
+            fcntl.flock(f, fcntl.LOCK_EX)
+        yield
+
+
+@contextmanager
+def lock_caches(repos: list[dict]):
+    # fetch だけでなくファイルのコピーが終わるまで持つ。途中で他プロセスに checkout されると
+    # 別の SHA の中身をコピーしてしまう。全 repo を同じ順で取るのは、2 プロセスが互いの
+    # ロックを待つデッドロックを避けるため。
+    with ExitStack() as stack:
+        for clone_dir in sorted({cache_dir_for(r["url"], r.get("ref")) for r in repos}):
+            stack.enter_context(cache_lock(clone_dir))
+        yield
+
+
 def checkout(clone_dir: Path, rev: str) -> bool:
     """Shallow-fetch rev (branch, tag, SHA or HEAD) from origin and check it out."""
     for cmd in (
@@ -114,9 +147,7 @@ def fetch_repo(
     url: str, ref: str | None, locked_sha: str | None = None,
 ) -> tuple[Path | None, str, str | None]:
     """Fetch a repo and return (clone_dir, message, sha)."""
-    org = os.path.basename(os.path.dirname(url))
-    name = os.path.basename(url).removesuffix(".git")
-    clone_dir = CACHE_DIR / org / name / (ref or "_default")
+    clone_dir = cache_dir_for(url, ref)
 
     ref_label = f" (ref: {ref})" if ref else ""
 
@@ -313,8 +344,8 @@ def sync(
     if not dry_run and lock_entries:
         save_lock(lock_file, lock_entries)
 
-    if frozen and failed:
-        print(f"Error: --frozen could not fetch: {', '.join(failed)}", file=sys.stderr)
+    if failed:
+        print(f"Error: failed to fetch: {', '.join(failed)}", file=sys.stderr)
         sys.exit(1)
 
 
@@ -360,4 +391,5 @@ def main() -> None:
         sys.exit(1)
 
     config = load_config(config_path)
-    sync(config, config_path=config_path, dry_run=args.dry_run, update=args.update, frozen=args.frozen)
+    with lock_caches(config.get("repos", [])):
+        sync(config, config_path=config_path, dry_run=args.dry_run, update=args.update, frozen=args.frozen)
