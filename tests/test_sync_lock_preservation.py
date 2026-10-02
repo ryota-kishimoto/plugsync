@@ -4,6 +4,7 @@
 sync() を fetch_repo だけ差し替えて確認する。
 """
 
+import pytest
 import yaml
 
 from plugsync import main
@@ -89,3 +90,15 @@ def test_drops_entry_when_repo_left_the_config(tmp_path, monkeypatch):
     urls = [r["url"] for r in data["repos"]]
     assert urls == ["https://github.com/foo/ok"]
     assert data["locked_at"] != EXISTING_LOCK["locked_at"]
+
+
+def test_frozen_exits_nonzero_when_fetch_fails(tmp_path, monkeypatch):
+    config_path = tmp_path / ".plugsync.yaml"
+    write(config_path, CONFIG)
+    write(tmp_path / ".plugsync.lock", EXISTING_LOCK)
+    fake_fetch(monkeypatch, tmp_path)
+
+    with pytest.raises(SystemExit) as e:
+        main.sync(CONFIG, config_path, frozen=True)
+
+    assert e.value.code == 1

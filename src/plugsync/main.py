@@ -99,6 +99,17 @@ def repo_matches(url: str, target: str) -> bool:
 CACHE_DIR = Path(os.environ.get("PLUGSYNC_CACHE", "~/.cache/plugsync")).expanduser()
 
 
+def checkout(clone_dir: Path, rev: str) -> bool:
+    """Shallow-fetch rev (branch, tag, SHA or HEAD) from origin and check it out."""
+    for cmd in (
+        ["fetch", "--depth=1", "--quiet", "origin", rev],
+        ["checkout", "--quiet", "--detach", "FETCH_HEAD"],
+    ):
+        if subprocess.run(["git", "-C", str(clone_dir), *cmd]).returncode != 0:
+            return False
+    return True
+
+
 def fetch_repo(
     url: str, ref: str | None, locked_sha: str | None = None,
 ) -> tuple[Path | None, str, str | None]:
@@ -109,18 +120,14 @@ def fetch_repo(
 
     ref_label = f" (ref: {ref})" if ref else ""
 
+    # キャッシュは全プロジェクトで共有なので、HEAD は別プロジェクトが動かした位置にあり得る。
+    # locked SHA があるときは HEAD を信用せず、その SHA を取り直して合わせる。
     if clone_dir.exists():
-        if locked_sha:
-            current_sha = get_head_sha(clone_dir)
-            if current_sha == locked_sha:
-                return clone_dir, f"→ {url}{ref_label} (locked)", locked_sha
-
-        result = subprocess.run(
-            ["git", "-C", str(clone_dir), "pull", "--depth=1", "--quiet"],
-        )
-        if result.returncode == 0:
-            sha = get_head_sha(clone_dir)
-            return clone_dir, f"→ Pulling {url}{ref_label} ... (cached)", sha
+        if locked_sha and get_head_sha(clone_dir) == locked_sha:
+            return clone_dir, f"→ {url}{ref_label} (locked)", locked_sha
+        if checkout(clone_dir, locked_sha or ref or "HEAD"):
+            label = "(locked)" if locked_sha else "(cached)"
+            return clone_dir, f"→ Pulling {url}{ref_label} ... {label}", get_head_sha(clone_dir)
         # Cache is broken — delete and re-clone
         shutil.rmtree(clone_dir)
 
@@ -132,6 +139,8 @@ def fetch_repo(
     result = subprocess.run(clone_cmd)
     if result.returncode != 0:
         return None, f"  ⚠ Failed to clone {url}, skipping.\n", None
+    if locked_sha and get_head_sha(clone_dir) != locked_sha and not checkout(clone_dir, locked_sha):
+        return None, f"  ⚠ Failed to fetch locked commit {locked_sha} of {url}, skipping.\n", None
     sha = get_head_sha(clone_dir)
     return clone_dir, f"→ Cloning {url}{ref_label} ...", sha
 
@@ -206,6 +215,7 @@ def sync(
             fetch_results[(repo["url"], repo.get("ref"))] = future.result()
 
     lock_entries: list[dict] = []
+    failed: list[str] = []
 
     for repo in repos:
         url = repo["url"]
@@ -213,6 +223,7 @@ def sync(
         print(message)
         if clone_dir is None:
             warnings += 1
+            failed.append(url)
             # 取得できなかった repo は設定には残っているので、既存の記録を引き継ぐ。
             # 落とすと一時的なネットワーク断でピン留めが消え、lock が再現性を失う。
             previous_sha = get_locked_sha(lock_data, url)
@@ -301,6 +312,10 @@ def sync(
 
     if not dry_run and lock_entries:
         save_lock(lock_file, lock_entries)
+
+    if frozen and failed:
+        print(f"Error: --frozen could not fetch: {', '.join(failed)}", file=sys.stderr)
+        sys.exit(1)
 
 
 def main() -> None:
