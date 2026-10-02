@@ -56,7 +56,8 @@ def test_keeps_entry_for_repo_that_failed_to_fetch(tmp_path, monkeypatch):
     write(lock_path, EXISTING_LOCK)
     fake_fetch(monkeypatch, tmp_path)
 
-    main.sync(CONFIG, config_path)
+    with pytest.raises(SystemExit):
+        main.sync(CONFIG, config_path)
 
     urls = [r["url"] for r in read(lock_path)["repos"]]
     assert "https://github.com/foo/broken" in urls
@@ -70,7 +71,8 @@ def test_unchanged_lock_is_untouched_despite_fetch_failure(tmp_path, monkeypatch
     fake_fetch(monkeypatch, tmp_path)
     before = lock_path.read_bytes()
 
-    main.sync(CONFIG, config_path)
+    with pytest.raises(SystemExit):
+        main.sync(CONFIG, config_path)
 
     assert lock_path.read_bytes() == before
 
@@ -92,13 +94,15 @@ def test_drops_entry_when_repo_left_the_config(tmp_path, monkeypatch):
     assert data["locked_at"] != EXISTING_LOCK["locked_at"]
 
 
-def test_frozen_exits_nonzero_when_fetch_fails(tmp_path, monkeypatch):
+@pytest.mark.parametrize("frozen", [False, True])
+def test_exits_nonzero_and_names_repo_when_fetch_fails(tmp_path, monkeypatch, capsys, frozen):
     config_path = tmp_path / ".plugsync.yaml"
     write(config_path, CONFIG)
     write(tmp_path / ".plugsync.lock", EXISTING_LOCK)
     fake_fetch(monkeypatch, tmp_path)
 
     with pytest.raises(SystemExit) as e:
-        main.sync(CONFIG, config_path, frozen=True)
+        main.sync(CONFIG, config_path, frozen=frozen)
 
     assert e.value.code == 1
+    assert "https://github.com/foo/broken" in capsys.readouterr().err
